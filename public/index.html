@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What's my agent doing</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👀</text></svg>">
+<link rel="stylesheet" href="/library.css">
+<link rel="stylesheet" href="/workflow-canvas.css">
+<link rel="stylesheet" href="/achievements.css">
+<link rel="stylesheet" href="/codex-usage.css">
 <style>
   :root {
     --bg: #f6f6f3;
@@ -76,6 +80,9 @@
   button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--tool); outline-offset: 3px; }
   .toolbar-space { flex: 1; }
   .controls > .btn, .settings > summary { min-height: 36px; display: inline-flex; align-items: center; white-space: nowrap; }
+  #socialScope.on { color: var(--ink); background: var(--line); }
+  #codexUsageScope.on { color: var(--ink); background: var(--line); }
+  body.social-mode #todayMenu, body.social-mode #pipBtn { display: none; }
   .settings > summary { list-style: none; gap: 7px; color: var(--ink); }
   .settings > summary::-webkit-details-marker { display: none; }
   /* A drawn chevron sits on the text's centre line; the ⌄ glyph hangs below it in most fonts. */
@@ -265,6 +272,20 @@
   .msg .at { display: block; margin-top: 3px; font-size: 10.5px; color: var(--faint); }
   .msgs-note { margin: 12px 6px; font-size: 12.5px; color: var(--muted); }
   .side-sec { margin: 14px 6px 4px; font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .agent-monogram { display: inline-grid; place-items: center; border-radius: 4px; background: var(--line); font-size: 10px; font-weight: 700; }
+  .social-entry { max-width: 100%; width: 100%; white-space: normal; }
+  .social-entry summary { cursor: pointer; }
+  .social-evidence { margin-top: 8px; }
+  .social-evidence img { display: block; width: 100%; margin-top: 8px; border: 1px solid var(--line); border-radius: 7px; }
+  .social-link { color: var(--tool); overflow-wrap: anywhere; }
+  .social-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 7px; }
+  .social-actions .btn, .side .dactions .btn { font-size: 11.5px; padding: 3px 7px; }
+  .social-editor { margin: 0; }
+  .social-edit-fields { display: grid; gap: 8px; margin: 8px 6px; }
+  .social-edit-actions { display: flex; gap: 6px; margin: 10px 6px; }
+  .social-edit-error { margin: 8px 6px; color: var(--error); }
+  .social-editor label { display: grid; gap: 4px; color: var(--muted); font-size: 12px; }
+  .social-editor :is(input, select, textarea) { min-width: 0; width: 100%; padding: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
   /* The panel's group headings already count Needs you / Working / Finished, so the
      toolbar drops those chips (and then the title) before it would wrap. */
   @media (max-width: 1240px) { body.full .summary { display: none; } }
@@ -403,6 +424,27 @@
         </div>
       </details>
       <span class="toolbar-space" aria-hidden="true"></span>
+      <button class="btn library-launch" id="libraryOpen" type="button" aria-haspopup="dialog" aria-controls="libraryDialog">
+        <svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c2.7-.8 5.4-.3 8 1.1v13c-2.6-1.4-5.3-1.9-8-1.1zM20 5.5c-2.7-.8-5.4-.3-8 1.1v13c2.6-1.4 5.3-1.9 8-1.1z"/><path d="M12 6.6v13"/></svg>
+        <span id="libraryOpenLabel">技能图书馆</span>
+      </button>
+      <button class="btn workflow-canvas-launch" id="workflowCanvasOpen" type="button" aria-haspopup="dialog" aria-controls="workflowCanvasDialog">
+        <svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="6" height="5" rx="1.4"/><rect x="14.5" y="15" width="6" height="5" rx="1.4"/><path d="M9.5 6.5h3a3 3 0 0 1 3 3v5.5M13 13l2.5 2.5L18 13"/></svg>
+        <span id="workflowCanvasOpenLabel">工作流</span>
+      </button>
+      <button class="btn library-launch library-launch-public" id="libraryPublicOpen" type="button" aria-haspopup="dialog" aria-controls="libraryDialog">
+        <svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 9 9-5 9 5M4 10h16M6 10v8m6-8v8m6-8v8M3 19h18"/></svg>
+        <span id="libraryPublicOpenLabel">公共图书馆</span>
+      </button>
+      <button class="btn" id="achievementsOpen" type="button" aria-haspopup="dialog" aria-controls="achievementsDialog" aria-label="Vibe 成就">
+        <svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v6a4 4 0 0 1-8 0V3Zm0 2H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4m-4 2v5m-4 3h8m-6-3h4"/></svg>
+        <span id="achievementsOpenLabel">Vibe 成就</span>
+      </button>
+      <button class="btn" id="codexUsageScope" type="button" aria-pressed="false" hidden>
+        <svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V12M10 19.5V5M16 19.5V9M22 19.5V3"/></svg>
+        <span id="codexUsageScopeLabel" data-cu="scope">Token 用量</span>
+      </button>
+      <button class="btn" id="socialScope" type="button" aria-pressed="false" hidden>社交账号</button>
       <button class="btn" id="pipBtn" hidden></button>
       <details class="settings menu" id="todayMenu">
         <summary class="btn" aria-controls="todayPanel" data-a="today"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17"/><rect x="5" y="11" width="3.2" height="7" rx="1"/><rect x="10.4" y="6" width="3.2" height="12" rx="1"/><rect x="15.8" y="13.5" width="3.2" height="4.5" rx="1"/></svg><span data-t="today"></span> <span class="today-tokens" id="todayTokens"></span></summary>
@@ -411,7 +453,7 @@
       <details class="settings menu" id="agentMenu">
         <summary class="btn" aria-controls="agentPanel" data-a="agents"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16l-6 7.2v5.3l-4 1.5v-6.8z"/></svg><span id="agentName"></span></summary>
         <div class="settings-panel list-panel" id="agentPanel">
-          <div class="setting-label" data-t="agents"></div>
+          <div class="setting-label" id="agentFilterLabel" data-t="agents"></div>
           <div class="pick-list" id="agentChips" role="group"></div>
         </div>
       </details>
@@ -445,7 +487,17 @@
     <button class="btn" id="closePreview" data-t="pipStop"></button>
   </div>
   <div id="officeWrap">
-    <div class="office loading" id="office"><div class="office-loader"><div class="spin"></div><span id="loaderText"></span></div></div>
+    <div class="office loading" id="office">
+      <div class="office-loader"><div class="spin"></div><span id="loaderText"></span></div>
+      <button id="officeHallTrophy" type="button" aria-label="Hall of fame" title="Hall of fame" aria-haspopup="dialog" aria-controls="achievementsDialog" hidden>
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
     <div class="legend" id="legend"></div>
     <div class="legend" id="agentLegend" hidden></div>
   </div>
@@ -459,16 +511,460 @@
       <div class="side-head"><button class="icon-btn" id="sideBack"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><b id="detailTitle"></b></div>
       <div class="side-body" id="detailBody"></div>
     </div>
+    <div class="side-pane" id="usageSidebar" hidden>
+      <div class="side-head">
+        <button class="icon-btn" id="cuSideClose" type="button" aria-label="返回"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
+        <b id="cuSideTitle" data-cu="title">Codex Token 用量</b>
+        <button class="icon-btn" id="cuRefresh" type="button" aria-label="扫描新记录"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4.8 10a7.5 7.5 0 0 1 13.4-2L20 12M4 17v-5h5m10.2 2A7.5 7.5 0 0 1 5.8 16L4 12"/></svg></button>
+        <button class="icon-btn" id="cuSideHide" type="button" aria-label="隐藏侧栏"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L21 12l-6.5 6.5M3 12h17"/></svg></button>
+      </div>
+      <div class="side-body cu-side-body">
+        <div class="cu-status" id="cuStatus" role="status" aria-live="polite"></div><span id="cuScanProgress" class="sr-only"></span>
+        <p class="cu-message" id="cuMessage" role="status" aria-live="polite"></p>
+        <div class="side-group" data-cu="filters">用量筛选</div>
+        <div class="seg cu-range" id="cuRange" role="group" aria-label="时间范围">
+          <button type="button" data-range="7" data-cu-range="0" aria-pressed="false">7 天</button>
+          <button class="on" type="button" data-range="30" data-cu-range="1" aria-pressed="true">30 天</button>
+          <button type="button" data-range="all" data-cu-range="2" aria-pressed="false">全部</button>
+          <button type="button" data-range="custom" data-cu-range="3" aria-pressed="false">自定义</button>
+        </div>
+        <div class="cu-custom-date" id="cuCustomRange">
+          <label class="sr-only" for="cuDateStart">开始日期</label><input class="cu-select" type="date" id="cuDateStart" aria-label="开始日期">
+          <span aria-hidden="true">—</span>
+          <label class="sr-only" for="cuDateEnd">结束日期</label><input class="cu-select" type="date" id="cuDateEnd" aria-label="结束日期">
+        </div>
+        <div class="cu-filter-row">
+          <label class="sr-only" for="cuModel">模型</label><select class="cu-select" id="cuModel" aria-label="模型"><option value="">全部模型</option></select>
+          <label class="sr-only" for="cuProject">项目</label><select class="cu-select" id="cuProject" aria-label="项目"><option value="">全部项目</option></select>
+        </div>
+        <div class="cu-reset-row"><button class="cu-text-button" id="cuReset" type="button" data-cu="clear">清除筛选</button></div>
+
+        <div class="side-group" data-cu="metric">显示指标</div>
+        <div class="seg cu-metric" id="cuMetric" role="group" aria-label="Token 或费用估算"><button class="on" id="cuMetricTokens" type="button" data-metric="tokens" aria-pressed="true">Token</button><button id="cuMetricCost" type="button" data-metric="cost" aria-pressed="false">API 等价估算</button></div>
+
+        <div class="side-group" data-cu="tokensMetric">Token 总量</div>
+        <div class="cu-total"><b id="cuTotalTokens">—</b><span id="cuTokensNote">—</span></div>
+        <div class="today-row"><span data-cu="cacheRate">缓存输入</span><span class="n"><span id="cuCacheRate">—</span> · <span id="cuCacheNote">—</span></span></div>
+        <div class="today-row"><span data-cu="coverage">用量记录</span><span class="n" id="cuRecordCount">—</span></div>
+        <div class="cu-note" id="cuCoverageNote"></div>
+        <details class="cu-breakdown">
+          <summary class="side-group" data-cu="component">Token 构成</summary>
+          <div class="cu-breakdown-bar"><span id="cuBarCached"></span><span id="cuBarInput"></span><span id="cuBarOutput"></span></div>
+          <div class="today-row"><span data-cu="cachedInput">缓存输入</span><span class="n" id="cuCompositionCached">—</span></div>
+          <div class="today-row"><span data-cu="otherInput">其他输入</span><span class="n" id="cuCompositionInput">—</span></div>
+          <div class="today-row"><span data-cu="output">输出</span><span class="n" id="cuCompositionOutput">—</span></div>
+        </details>
+        <div class="today-row" id="cuCostRow" hidden><span data-cu="apiCost">API 等价估算</span><span class="n" id="cuTotalCost">—</span></div>
+        <div class="cu-note" id="cuCostNote"></div>
+        <p class="cu-note cu-data-note" id="cuEstimateNote"><span data-cu="estimateSource">按 OpenAI 标准短上下文 API 费率估算。</span> <a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noreferrer" data-cu="priceSource">API 费率</a> <span id="cuPricingDate"></span></p>
+        <p class="cu-note cu-billing-note cu-data-note" id="cuBillingNote"><span data-cu="billing">实际订阅或 credits 用量请查看 OpenAI 官方 Usage / Billing。本机日志不记录实际扣款。</span> <a href="https://chatgpt.com/codex/settings/usage" target="_blank" rel="noreferrer" data-cu="usageSource">OpenAI 用量与计费</a></p>
+
+        <div class="cu-section-line">
+          <div class="side-group" id="cuChartTitle" data-cu="daily">每日用量</div>
+          <label class="sr-only" for="cuGrain">时间粒度</label>
+          <select class="cu-select cu-grain" id="cuGrain" aria-label="时间粒度"><option value="hour" data-cu-grain="0">按小时</option><option value="day" selected data-cu-grain="1">按日</option><option value="week" data-cu-grain="2">按周</option><option value="month" data-cu-grain="3">按月</option></select>
+        </div>
+        <svg class="cu-chart" id="cuChart" role="img" aria-label="Token 使用趋势"></svg>
+        <div class="cu-chart-note"><span id="cuChartLegend" data-cu="tokensMetric">Token 总量</span><span id="cuUnknownLegend" hidden data-cu="unpriced">部分模型没有已知费率</span><span id="cuChartRule" data-cu="updated">已从本机日志更新</span></div>
+        <div class="cu-note" data-cu="reasoning">推理 Token 已计入输出</div>
+
+        <div class="cu-section-line"><div class="side-group" data-cu="rankings">用量排行</div><span class="cu-note" id="cuRankSortNote" data-cu="rankMetric">按当前指标排序</span></div>
+        <div class="seg cu-rank-seg" id="cuRankingMode" role="group" aria-label="排行维度"><button class="on" id="cuProjectMode" type="button" data-ranking="project" aria-pressed="true">项目</button><button id="cuModelMode" type="button" data-ranking="model" aria-pressed="false">模型</button></div>
+        <ul class="cu-rank-list" id="cuRankList"></ul>
+
+      </div>
+    </div>
   </aside>
   <button class="side-tab" id="sideTab"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L3 12l6.5 6.5M21 12H4"/></svg><span id="sideTabCount"></span></button>
   <main id="main"></main>
 </div>
+<dialog class="library-dialog" id="libraryDialog" aria-labelledby="libraryTitle" aria-describedby="libraryIntro">
+  <div class="library-shell">
+    <header class="library-header">
+      <div class="library-heading">
+        <p class="library-eyebrow" id="libraryEyebrow">MYOFFICE · SKILL ARCHIVE</p>
+        <h2 id="libraryTitle">技能图书室</h2>
+        <p id="libraryIntro">走到一张阅读桌前，翻开它收纳的技能书。</p>
+        <p class="library-public-note" id="libraryPublicNote" hidden>
+          <span id="libraryPublicDate"></span>
+          <a href="https://skills.sh/trending" target="_blank" rel="noreferrer" id="libraryTrendingLink">skills.sh 趋势榜 ↗</a>
+          <a href="https://github.com/Angelov1314/vibe-atlas" target="_blank" rel="noreferrer" id="libraryAtlasLink">Vibe Atlas ↗</a>
+        </p>
+      </div>
+      <button class="library-close" id="libraryClose" type="button" aria-label="关闭图书室">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="library-content" id="libraryContent">
+      <div class="library-status" id="libraryStatus" role="status" aria-live="polite" hidden>
+        <span class="library-status-mark" aria-hidden="true"></span>
+        <p id="libraryStatusText"></p>
+        <button class="library-retry" id="libraryRetry" type="button" hidden>重试</button>
+      </div>
+      <section class="library-room" id="libraryRoom" aria-label="技能图书室的阅读桌" hidden>
+        <div class="library-room-art" aria-hidden="true">
+          <div class="library-wall-shelf"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="library-window"><i></i><i></i></div>
+          <div class="library-room-edge"></div>
+          <div class="library-rug"></div>
+          <div class="library-plant"><i></i><i></i><i></i><b></b></div>
+          <div class="library-floor-lamp"><i></i><b></b></div>
+        </div>
+        <div class="library-desks" id="libraryDesks" role="group" aria-label="分类阅读桌"></div>
+        <p class="library-room-hint" id="libraryRoomHint">选一张桌子，看看上面有哪些书。</p>
+      </section>
+      <section class="library-books" id="libraryBooks" aria-labelledby="libraryCategoryTitle" hidden>
+        <div class="library-view-head">
+          <button class="library-back" id="libraryBackRoom" type="button"><span aria-hidden="true">←</span><span id="libraryBackRoomLabel">回到房间</span></button>
+          <p class="library-view-kicker" id="libraryCategoryKicker"></p>
+          <h3 id="libraryCategoryTitle" tabindex="-1"></h3>
+          <p class="library-category-description" id="libraryCategoryDescription"></p>
+        </div>
+        <label class="library-search" for="librarySearch">
+          <span id="librarySearchLabel">查找技能书</span>
+          <input id="librarySearch" type="search" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="library-substatus" id="libraryBooksStatus" role="status" aria-live="polite" hidden>
+          <p id="libraryBooksStatusText"></p>
+          <button class="library-retry" id="libraryRetryBooks" type="button" hidden></button>
+        </div>
+        <div class="library-book-stage" id="libraryBookStage">
+          <aside class="library-reading-station">
+            <div class="library-drop-zone" id="libraryDropZone">
+              <svg class="library-mat-icon" viewBox="0 0 48 40" fill="none" aria-hidden="true">
+                <path d="M24 34c-6-5-13-6-20-5V7c7-1 14 0 20 5 6-5 13-6 20-5v22c-7-1-14 0-20 5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M24 12v22M10 13c3 0 7 1 10 3m-10 3c3 0 7 1 10 3m8-6c3-2 7-3 10-3m-10 9c3-2 7-3 10-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              <div class="library-mat-copy"><strong id="libraryMatTitle"></strong><small id="libraryMatHint"></small></div>
+            </div>
+          </aside>
+          <div class="library-book-list" id="libraryBookList"></div>
+        </div>
+      </section>
+      <section class="library-skill" id="librarySkill" aria-labelledby="librarySkillTitle" hidden>
+        <div class="library-reader-top">
+          <button class="library-back" id="libraryBackBooks" type="button"><span aria-hidden="true">←</span><span id="libraryBackBooksLabel">回到技能书</span></button>
+          <button class="library-reader-mode library-workflow-action" id="libraryWorkflowOpen" type="button" hidden></button>
+          <button class="library-reader-mode" id="libraryReaderMode" type="button" aria-controls="libraryReaderPageContent librarySkillBody" hidden></button>
+        </div>
+        <div class="library-skill-status" id="librarySkillStatus" role="status" aria-live="polite" tabindex="-1" hidden>
+          <p id="librarySkillStatusText"></p>
+          <button class="library-retry" id="libraryRetrySkill" type="button" hidden></button>
+        </div>
+        <div class="library-reader-stage" id="libraryReaderStage" hidden>
+          <div class="library-reader-spread">
+            <aside class="library-reader-leaf library-reader-index">
+              <span class="library-reader-ribbon" aria-hidden="true"></span>
+              <p class="library-view-kicker" id="librarySkillKicker"></p>
+              <h3 id="librarySkillTitle" tabindex="-1"></h3>
+              <p class="library-skill-description" id="librarySkillDescription"></p>
+              <div class="library-sources" id="librarySources" hidden>
+                <h4 id="librarySourcesTitle">来源</h4>
+                <ul id="librarySourceList"></ul>
+              </div>
+              <details class="library-reader-toc" id="libraryReaderToc">
+                <summary id="libraryReaderTocLabel"></summary>
+                <ol class="library-reader-chapters" id="libraryReaderChapters"></ol>
+              </details>
+            </aside>
+            <article class="library-reader-leaf library-reader-page" aria-labelledby="libraryInstructionsTitle">
+              <div class="library-reader-running"><span id="libraryInstructionsTitle">技能说明</span><span id="libraryReaderFolios" aria-live="polite"></span></div>
+              <div class="library-reader-page-content" id="libraryReaderPageContent">
+                <h4 class="library-reader-chapter-title" id="libraryReaderChapterTitle" tabindex="-1"></h4>
+                <div class="library-reader-prose" id="libraryReaderProse"></div>
+              </div>
+              <pre id="librarySkillBody" class="library-markdown" tabindex="0" hidden></pre>
+              <div class="library-reader-footer" id="libraryReaderFooter">
+                <button class="library-reader-turn is-prev" id="libraryReaderPrev" type="button"><span aria-hidden="true">←</span><span id="libraryReaderPrevLabel"></span></button>
+                <span class="library-reader-progress" id="libraryReaderProgress"></span>
+                <button class="library-reader-turn is-next" id="libraryReaderNext" type="button"><span id="libraryReaderNextLabel"></span><span aria-hidden="true">→</span></button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</dialog>
+<dialog class="workflow-canvas-dialog" id="workflowCanvasDialog" aria-labelledby="workflowCanvasTitle" aria-describedby="workflowCanvasIntro">
+  <div class="workflow-canvas-shell">
+    <header class="workflow-canvas-header">
+      <div class="workflow-canvas-heading">
+        <p class="workflow-canvas-eyebrow" id="workflowCanvasEyebrow">MYOFFICE · WORKFLOWS</p>
+        <h2 id="workflowCanvasTitle">工作流</h2>
+        <p id="workflowCanvasIntro">选择已生成的工作流图，在此查看完整流程。</p>
+      </div>
+      <button class="workflow-canvas-close" id="workflowCanvasClose" type="button" aria-label="关闭工作流">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="workflow-canvas-toolbar">
+      <label class="workflow-canvas-picker" for="workflowCanvasSelect">
+        <span id="workflowCanvasSelectLabel">已生成的工作流</span>
+        <select id="workflowCanvasSelect" aria-controls="workflowCanvasFrame"></select>
+      </label>
+      <button class="btn workflow-canvas-refresh" id="workflowCanvasRefresh" type="button">刷新列表</button>
+    </div>
+    <div class="workflow-canvas-stage">
+      <p class="workflow-canvas-status" id="workflowCanvasStatus" role="status" aria-live="polite"></p>
+      <div class="workflow-canvas-empty" id="workflowCanvasEmpty">
+        <span class="workflow-canvas-empty-mark" aria-hidden="true">◇</span>
+        <strong id="workflowCanvasEmptyTitle">还没有生成的工作流</strong>
+        <p id="workflowCanvasEmptyText">请先使用 $workflow-canvas 生成一张工作流图，再刷新列表。</p>
+      </div>
+      <iframe id="workflowCanvasFrame" title="工作流画布" sandbox="allow-scripts" referrerpolicy="no-referrer" hidden></iframe>
+    </div>
+  </div>
+</dialog>
+<dialog class="achievements-dialog" id="achievementsDialog" aria-labelledby="achievementsTitle" aria-describedby="achievementsIntro">
+  <div class="achievements-shell">
+    <div class="achievements-header">
+      <div class="achievements-seal" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg></div>
+      <div class="achievements-heading">
+        <p class="achievements-eyebrow" id="achievementsEyebrow">MYOFFICE · VIBE INDEX</p>
+        <h2 id="achievementsTitle" tabindex="-1" autofocus>Vibe Coding Achievements</h2>
+        <p id="achievementsIntro">A record of the work you put into motion.</p>
+      </div>
+      <button class="achievements-close" id="achievementsClose" type="button" aria-label="Close achievements">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </div>
+
+
+    <section class="achievement-room-view" id="achievementsRoom" aria-label="成就办公室">
+      <div class="achievement-office" id="achievementsOffice">
+          <button class="achievement-room-trophy" type="button" data-room-metric="tokens" aria-label="最多 Token 消耗" aria-controls="achievementsHall"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg><span>最多 Token 消耗</span></button>
+          <button class="achievement-room-trophy" type="button" data-room-metric="projects" aria-label="最多项目" aria-controls="achievementsHall"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg><span>最多项目</span></button>
+          <button class="achievement-room-trophy" type="button" data-room-metric="sessions" aria-label="最多会话" aria-controls="achievementsHall"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg><span>最多会话</span></button>
+          <button class="achievement-room-trophy" type="button" data-room-metric="activeDays" aria-label="最多活跃天数" aria-controls="achievementsHall"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg><span>最多活跃天数</span></button>
+          <button class="achievement-room-trophy" type="button" data-room-metric="streak" aria-label="最多连续天数" aria-controls="achievementsHall"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg><span>最多连续天数</span></button>
+          <button class="achievement-room-trophy" type="button" data-room-metric="agents" aria-label="最多 Agent 类型" aria-controls="achievementsHall"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg><span>最多 Agent 类型</span></button>
+          <button class="achievement-room-trophy" type="button" data-room-metric="score" aria-label="最多成就积分" aria-controls="achievementsHall"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg><span>最多成就积分</span></button>
+      </div>
+      <div class="achievement-room-footer">
+        <p id="achievementRoomHint">点击办公室里的奖杯，打开对应排行榜。</p>
+        <button class="achievements-secondary" id="achievementCollectionOpen" type="button">我的成就收藏</button>
+      </div>
+    </section>
+
+    <div class="achievements-toolbar" id="achievementsDetailsToolbar" hidden>
+      <button class="achievement-office-back" id="achievementOfficeBack" type="button">← 返回办公室</button>
+      <div class="achievements-tabs" role="tablist" aria-label="Achievements sections" id="achievementsTablist">
+        <button class="achievements-tab is-active" id="achievementsTabLocal" type="button" role="tab" aria-selected="true" aria-controls="achievementsLocal" tabindex="0">My cabinet</button>
+        <button class="achievements-tab" id="achievementsTabHall" type="button" role="tab" aria-selected="false" aria-controls="achievementsHall" tabindex="-1">Hall of fame</button>
+      </div>
+      <span class="achievements-connection" id="achievementsConnection" hidden></span>
+      <button class="achievements-refresh" id="achievementsRefresh" type="button" aria-label="Refresh achievements">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 8a6.1 6.1 0 0 0-10.7-2L4 7.5M4 4v3.5h3.5M4 12a6.1 6.1 0 0 0 10.7 2l1.3-1.5M16 16v-3.5h-3.5"/></svg>
+        <span id="achievementsRefreshLabel">Refresh</span>
+      </button>
+    </div>
+
+    <div class="achievements-content" id="achievementsDetails" hidden>
+      <p class="achievements-status" id="achievementsStatus" role="status" aria-live="polite" hidden>
+        <span class="achievements-status-mark" aria-hidden="true"></span><span id="achievementsStatusText"></span>
+      </p>
+
+      <section class="achievements-view" id="achievementsLocal" role="tabpanel" aria-labelledby="achievementsTabLocal" tabindex="0">
+        <div class="achievements-local-hero">
+          <div class="achievements-local-copy">
+            <p class="achievements-eyebrow" id="achievementsLocalEyebrow">PRIVATE BY DEFAULT</p>
+            <h3 id="achievementsLocalHeading">Your work leaves a mark.</h3>
+            <p id="achievementsLocalLead">A small archive of your recent momentum, counted on this machine.</p>
+          </div>
+          <div class="achievements-scoreplate" aria-label="Achievement score">
+            <span class="scoreplate-label" id="achievementsScoreLabel">COLLECTED POINTS</span>
+            <strong id="achievementsScore" aria-live="polite">—</strong>
+            <span class="scoreplate-caption" id="achievementsScoreCaption">local score</span>
+          </div>
+        </div>
+
+        <div class="achievements-metrics" id="achievementsSummary" aria-label="Recent activity"></div>
+
+        <div class="achievements-section-heading">
+          <div>
+            <p class="achievements-eyebrow" id="achievementsCollectionEyebrow">THE COLLECTION</p>
+            <h3 id="achievementsCollectionHeading">Milestones &amp; rituals</h3>
+          </div>
+          <span class="achievements-collection-count" id="achievementsCollectionCount">—</span>
+        </div>
+        <div class="achievements-badge-grid" id="achievementsBadgeGrid" aria-live="polite"></div>
+        <p class="achievements-empty" id="achievementsBadgeEmpty" hidden></p>
+        <p class="achievements-local-note" id="achievementsLocalNote">Counts use sessions MyOffice observed in the last 30 UTC days. Earned badges stay unlocked.</p>
+
+        <div class="achievements-share-prompt" id="achievementsSharePrompt">
+          <div class="share-prompt-mark" aria-hidden="true">✦</div>
+          <div class="share-prompt-copy">
+            <h3 id="achievementsShareTitle">Put your name on the wall?</h3>
+            <p id="achievementsShareText">Preview the exact small profile that would appear in the public hall. Nothing is published before your approval.</p>
+          </div>
+          <button class="achievements-primary achievements-open-publish" id="achievementsShareStart" type="button">
+            <span id="achievementsShareStartLabel">Review public profile</span><span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <p class="achievements-offline-note" id="achievementsLocalUnavailable" hidden></p>
+      </section>
+
+      <section class="achievements-view" id="achievementsHall" role="tabpanel" aria-labelledby="achievementsTabHall" tabindex="0" hidden>
+        <div class="achievements-hall-intro">
+          <div>
+            <p class="achievements-eyebrow" id="achievementsHallEyebrow">THE PUBLIC REGISTER</p>
+            <h3 id="achievementsHallHeading">A place for builders.</h3>
+            <p id="achievementsHallLead">A worldwide table of makers who chose to share a small, self-reported snapshot.</p>
+          </div>
+          <div class="hall-insignia" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg></div>
+        </div>
+
+        <div class="achievements-hall-grid">
+          <section class="achievements-board-card" aria-labelledby="achievementsBoardHeading">
+            <div class="achievements-board-head">
+              <div>
+                <svg class="achievement-board-cup" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M9 6H3v3a6 6 0 0 0 8 6m12-9h6v3a6 6 0 0 1-8 6" fill="none" stroke="#be8840" stroke-width="2.3" stroke-linejoin="round"/>
+          <path d="M8 4h16v7a8 8 0 0 1-7 8v5h4v3H11v-3h4v-5a8 8 0 0 1-7-8z" fill="#f1c16b" stroke="#906133" stroke-width="1.1" stroke-linejoin="round"/>
+          <path d="M10 6h12M11 8v3" fill="none" stroke="#fff0b3" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9 26h14l2 2v2H7v-2z" fill="#936040" stroke="#624330" stroke-width="1" stroke-linejoin="round"/>
+        </svg>
+                <p class="achievements-eyebrow" id="achievementsBoardEyebrow">OPEN ROLL</p>
+                <h4 id="achievementsBoardHeading">The hall of fame</h4>
+            <label class="achievement-ranking-picker" for="achievementRankingMetric"><span id="achievementRankingLabel">排行榜</span>
+              <select id="achievementRankingMetric">
+                <option value="tokens">最多 Token 消耗</option><option value="projects">最多项目</option><option value="sessions">最多会话</option><option value="activeDays">最多活跃天数</option><option value="streak">最多连续天数</option><option value="agents">最多 Agent 类型</option><option value="score">最多成就积分</option>
+              </select>
+            </label>
+              </div>
+              <span class="achievements-board-total" id="achievementsBoardTotal"></span>
+            </div>
+            <p class="achievements-hall-status" id="achievementsHallStatus" role="status" aria-live="polite"></p>
+            <div class="achievements-table-wrap" id="achievementsLeaderboardWrap" hidden>
+              <table class="achievements-table" aria-describedby="achievementsBoardNote">
+                <thead><tr>
+                  <th scope="col" id="achievementsRankHead">Rank</th>
+                  <th scope="col" id="achievementsAliasHead">Maker</th>
+                  <th scope="col" id="achievementsBadgesHead">Badges</th>
+                  <th scope="col" id="achievementsPointsHead">Points</th>
+                </tr></thead>
+                <tbody id="achievementsLeaderboard"></tbody>
+              </table>
+            </div>
+            <p class="achievements-board-note" id="achievementsBoardNote">Scores are self-reported by MyOffice clients. The board shows the alias, earned badges, score and aggregate statistics approved for publication.</p>
+            <div class="achievements-page-controls" id="achievementsPageControls" hidden>
+              <button class="achievements-page-button" id="achievementsPagePrev" type="button" disabled><span aria-hidden="true">←</span><span id="achievementsPagePrevLabel">Previous</span></button>
+              <span id="achievementsPageLabel">Page 1 of 1</span>
+              <button class="achievements-page-button" id="achievementsPageNext" type="button" disabled><span id="achievementsPageNextLabel">Next</span><span aria-hidden="true">→</span></button>
+            </div>
+          </section>
+
+          <details class="achievement-sharing" id="achievementSharingDetails">
+            <summary id="achievementSharingSummary">公开资料与隐私</summary>
+          <div class="achievements-contribution-column">
+            <section class="achievements-publish-card" id="achievementsPublishCard" aria-labelledby="achievementsPublishHeading" hidden>
+              <p class="achievements-eyebrow" id="achievementsPublishEyebrow">YOUR PLACE, YOUR CALL</p>
+              <h4 id="achievementsPublishHeading">Choose how you appear.</h4>
+              <p class="publish-card-intro" id="achievementsPublishIntro">Use a public alias, then review the exact profile before deciding whether to share.</p>
+
+              <label class="achievements-field-label" id="achievementsAliasLabel" for="achievementsAlias">Public alias</label>
+              <input class="achievements-alias-input" id="achievementsAlias" name="achievementsAlias" type="text" autocomplete="nickname" spellcheck="false" aria-describedby="achievementsAliasHint" placeholder="e.g. PaperKite" maxlength="48">
+              <p class="achievements-field-hint" id="achievementsAliasHint">2–24 Unicode letters or digits. Spaces, _ and - are allowed after the first character.</p>
+              <button class="achievements-secondary" id="achievementsPreview" type="button">
+                <span aria-hidden="true">◎</span><span id="achievementsPreviewLabel">Build my preview</span>
+              </button>
+
+              <section class="achievements-preview-panel" id="achievementsPreviewPanel" aria-labelledby="achievementsPreviewHeading" hidden>
+                <div class="achievements-preview-head">
+                  <span class="preview-seal" aria-hidden="true">✓</span>
+                  <div><p class="achievements-eyebrow" id="achievementsPreviewEyebrow">EXACT PUBLIC PREVIEW</p><h5 id="achievementsPreviewHeading">This is what others will see.</h5></div>
+                </div>
+                <dl class="achievements-preview-list" id="achievementsPreviewList"></dl>
+                <p class="achievements-exclusions" id="achievementsExclusions">Not included: prompts, repository paths, detailed usage logs, or session identifiers.</p>
+                <label class="achievements-consent-label" id="achievementsConsentLabel" for="achievementsConsent">
+                  <input id="achievementsConsent" type="checkbox" disabled>
+                  <span id="achievementsConsentText">I authorize publishing this exact profile to the worldwide leaderboard.</span>
+                </label>
+                <p class="achievements-consent-hint" id="achievementsConsentHint"></p>
+                <button class="achievements-primary achievements-publish-button" id="achievementsSubmit" type="button" disabled><span id="achievementsSubmitLabel">Publish my profile</span><span aria-hidden="true">↗</span></button>
+              </section>
+            </section>
+
+            <section class="achievements-publication-card" id="achievementsPublicationCard" aria-labelledby="achievementsPublicationHeading" hidden>
+              <p class="achievements-eyebrow" id="achievementsPublicationEyebrow">YOUR PUBLISHED ENTRY</p>
+              <h4 id="achievementsPublicationHeading">Your place in the hall</h4>
+              <p class="achievements-publication-state" id="achievementsPublication"></p>
+              <button class="achievements-withdraw" id="achievementsWithdraw" type="button"><span aria-hidden="true">×</span><span id="achievementsWithdrawLabel">Withdraw my entry</span></button>
+            </section>
+
+            <section class="achievements-privacy-card" aria-labelledby="achievementsPrivacyHeading">
+              <span class="privacy-mark" aria-hidden="true">◌</span>
+              <div><h4 id="achievementsPrivacyHeading">A deliberate footprint.</h4><p id="achievementsPrivacyText">Your activity stays on this machine until you publish a reviewed profile. Publication needs a fresh, unchecked consent each time.</p></div>
+            </section>
+          </div>
+            <p class="achievements-offline-note" id="achievementsHallUnavailable" hidden></p>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <footer class="achievements-footer">
+      <span class="footer-rule" aria-hidden="true"></span>
+      <p id="achievementsFooterText">MAKE THINGS. KEEP THE RECEIPT.</p>
+      <span class="footer-rule" aria-hidden="true"></span>
+    </footer>
+  </div>
+</dialog>
 <div class="conn" id="conn" data-t="disconnected"></div>
 <div class="tip" id="tip"></div>
 <div class="ver" id="ver"></div>
 <script src="/i18n.js"></script>
 <script src="/office.js"></script>
 <script src="/popout.js"></script>
+<script src="/social-workbench.js"></script>
+<script src="/social-edit.js"></script>
+<script src="/codex-usage.js"></script>
 
 <script>
 // Language: your pick in the 🌐 menu, else the language of your prompts
@@ -499,6 +995,7 @@ function applyLang(code) {
   if (typeof syncControls === 'function') syncControls();
   if (typeof renderSceneSel === 'function') renderSceneSel();
   if (typeof renderVersion === 'function') renderVersion();
+  window.CodexUsage?.setLocale?.(code);
 }
 
 const store = (() => {
@@ -546,7 +1043,7 @@ if (PIP) document.body.classList.add('pip');
     } catch { /* malformed preferences use the saved defaults */ }
   }
   for (const k of ['view', 'quality', 'scene', 'lang']) if (validPreference(k, q.get(k))) store.set(k, q.get(k));
-  if (location.search) history.replaceState(null, '', location.pathname + (PIP ? '?pip=1' : ''));
+  if (location.search) history.replaceState(null, '', location.pathname + (PIP ? '?pip=1' : '') + location.hash);
 }
 
 const state = {
@@ -555,6 +1052,8 @@ const state = {
   full: !PIP,
   scenes: [],
   data: { now: Date.now(), sessions: [] },
+  social: false,
+  platforms: [],
   skew: 0,
   prev: new Map(),
   prevStuck: new Set(),
@@ -621,7 +1120,9 @@ function resumeCmd(s) {
 
 function agentLogo(agent) {
   const badge = OFFICE_AGENT_BADGES[agent];
-  return badge ? `<img class="agent-logo${badge.mono ? ' mono' : ''}" src="${badge.logo}" alt="" aria-hidden="true">` : '';
+  if (!badge) return '';
+  if (!badge.logo) return `<span class="agent-logo agent-monogram" aria-hidden="true">${esc(badge.short)}</span>`;
+  return `<img class="agent-logo${badge.mono ? ' mono' : ''}" src="${badge.logo}" alt="" aria-hidden="true">`;
 }
 
 
@@ -677,30 +1178,32 @@ function card(s, now) {
       <span class="time" data-time="${esc(s.key)}">${esc(timeLabel(s, now))}</span>
     </div>
     ${title}
-    <div class="status"><span class="ind"><i></i><i></i><i></i></span><span class="lbl">${esc(L[s.status] || s.status)}</span>${act}${stuck}</div>
+    <div class="status"><span class="ind"><i></i><i></i><i></i></span><span class="lbl">${esc(sessionStatus(s))}</span>${act}${stuck}</div>
     ${err}${q}${r}${ctx}
     <div class="foot"><span class="model">${esc((s.model || '') + sub)}</span>${resumeCmd(s) ? `<button class="copy" data-copy="${esc(resumeCmd(s))}">${L.copy}</button>` : ''}</div>
   </div>`;
 }
 
-const matchAgent = (s) => !state.agents.length || state.agents.includes(s.agent);
-function visible() {
-  return state.data.sessions.filter((s) =>
-    matchAgent(s) &&
-    (state.showSub || !s.subagent) &&
-    (state.showIdle || s.status !== 'idle'));
-}
+const scopedSessions = () => state.social ? SocialWorkbench.sessions() : state.data.sessions;
+const scopedFilters = () => state.social ? state.platforms : state.agents;
+const matchAgent = (s) => !scopedFilters().length || scopedFilters().includes(s.agent);
+const showSession = (s) => state.social || state.showSub || !s.subagent;
+const showStatus = (s) => state.social || state.showIdle || s.status !== 'idle';
+const sessionStatus = (s) => (s.social ? SocialWorkbench.copy()[s.status] : L[s.status]) || s.status;
+const groupTitle = (g) => (state.social ? SocialWorkbench.copy()[g.key] : L[g.key]);
+const visible = (sessions = scopedSessions()) => sessions.filter((s) => matchAgent(s) && showSession(s) && showStatus(s));
 
 function render() {
   const now = Date.now() - state.skew;
-  const list = visible();
-  const all = state.data.sessions.filter((s) => matchAgent(s) && (state.showSub || !s.subagent));
+  const sessions = scopedSessions();
+  const list = visible(sessions);
+  const all = sessions.filter((s) => matchAgent(s) && showSession(s));
 
   const count = (f) => all.filter((s) => f(s.status)).length;
   document.getElementById('summary').innerHTML = GROUPS.slice(0, 3).map((g) => {
     const n = count(g.match);
     const color = g.key === 'needsYou' ? 'var(--waiting)' : g.key === 'working' ? 'var(--tool)' : 'var(--done)';
-    return `<span class="chip"><span class="dot" style="color:${color}"></span>${L[g.key]} <b>${n}</b></span>`;
+    return `<span class="chip"><span class="dot" style="color:${color}"></span>${esc(groupTitle(g))} <b>${n}</b></span>`;
   }).join('');
 
   renderToday();
@@ -714,7 +1217,7 @@ function render() {
   document.getElementById('officeWrap').style.display = officeMode ? '' : 'none';
   // The office decides who sits at a desk and who wanders around.
   const officeList = all;
-  const poppedOut = !!popout?.win;
+  const poppedOut = !state.social && !!popout?.win;
   // Wait for the first snapshot so people start at their places instead of
   // all walking in through the door.
   if (office && state.loaded) {
@@ -728,6 +1231,8 @@ function render() {
     .map(agent => `<span>${agentLogo(agent)}${esc(AGENT_NAME[agent])}</span>`).join('');
   if (legend.innerHTML !== labels) legend.innerHTML = labels;
   legend.hidden = !state.showAgent || !labels;
+  document.getElementById('legend').hidden = state.social;
+  legend.style.bottom = state.social ? '10px' : '';
   document.getElementById('idleToggle').style.display = officeMode && !state.full ? 'none' : '';
   if (poppedOut) {
     document.getElementById('officeWrap').style.display = 'none';
@@ -749,14 +1254,14 @@ function render() {
   main.innerHTML = groups.map((g) => {
     const items = list.filter((s) => g.match(s.status));
     if (!items.length) return '';
-    return `<section><h2>${L[g.key]} <span class="n">${items.length}</span></h2><div class="grid">${items.map((s) => card(s, now)).join('')}</div></section>`;
+    return `<section><h2>${esc(groupTitle(g))} <span class="n">${items.length}</span></h2><div class="grid">${items.map((s) => card(s, now)).join('')}</div></section>`;
   }).join('');
 }
 
 function tickTimes() {
   if (tipKey) refreshTip();
   const now = Date.now() - state.skew;
-  const byKey = new Map(state.data.sessions.map((s) => [s.key, s]));
+  const byKey = new Map(scopedSessions().map((s) => [s.key, s]));
   document.querySelectorAll('[data-time]').forEach((el) => {
     const s = byKey.get(el.dataset.time);
     if (s) el.textContent = timeLabel(s, now);
@@ -877,6 +1382,15 @@ function syncControls() {
   soundBox.checked = state.sound;
   showAgent.checked = state.showAgent;
   document.getElementById('agentBadgeToggle').style.display = view === 'office' ? '' : 'none';
+  const socialScope = document.getElementById('socialScope');
+  socialScope.textContent = SocialWorkbench.copy().mode;
+  socialScope.classList.toggle('on', state.social);
+  socialScope.setAttribute('aria-pressed', String(state.social));
+  const filterLabel = state.social ? SocialWorkbench.copy().filter : L.agents;
+  const filterButton = document.getElementById('agentMenu').querySelector('summary');
+  filterButton.setAttribute('aria-label', filterLabel);
+  filterButton.title = filterLabel;
+  document.getElementById('agentFilterLabel').textContent = filterLabel;
   popout?.sync(PIP, view);
   // On only when both the switch and the browser allow it; blocked shows how to unblock.
   const perm = window.Notification ? Notification.permission : 'unsupported';
@@ -914,15 +1428,46 @@ function placeTip() {
 }
 function refreshTip() {
   if (!tipKey) return;
-  const s = state.data.sessions.find((x) => x.key === tipKey);
+  const s = scopedSessions().find((x) => x.key === tipKey);
   if (!s) return hideTip();
   tip.innerHTML = card(s, Date.now() - state.skew);
   placeTip();
 }
 function hideTip() { tipKey = null; tipPinned = false; tip.style.display = 'none'; tip.classList.remove('pinned'); }
+const officeHallTrophy = document.getElementById('officeHallTrophy');
+let trophyProjection;
+function placeOfficeTrophy(renderer) {
+  const shelf = !PIP && !state.social && !renderer.plan.scene && renderer.plan.props.find((prop) => prop.t === 'shelf');
+  if (!shelf) {
+    officeHallTrophy.hidden = true;
+    return;
+  }
+  const x = shelf.x + shelf.w / 2;
+  const y = shelf.y + shelf.d / 2;
+  const height = 1.45;
+  let left, top;
+  if (renderer.camera) {
+    trophyProjection ||= renderer.camera.position.clone();
+    const point = trophyProjection.set(x, height, y).project(renderer.camera);
+    left = (point.x + 1) * renderer.cw / 2;
+    top = (1 - point.y) * renderer.ch / 2;
+  } else {
+    const point = renderer.iso(x, y, height);
+    left = point.x * renderer.cam.zoom + renderer.cam.ox;
+    top = point.y * renderer.cam.zoom + renderer.cam.oy;
+  }
+  officeHallTrophy.hidden = left < 22 || left > renderer.cw - renderer.inset() - 22 || top < 38 || top > renderer.ch - 8;
+  if (!officeHallTrophy.hidden) {
+    const position = `translate(${Math.round(left)}px, ${Math.round(top)}px) translate(-50%, -82%)`;
+    if (officeHallTrophy.style.transform !== position) officeHallTrophy.style.transform = position;
+  }
+}
 const officeOpts = {
   compact: PIP,
-  onFrame: (renderer) => popout?.drawPreview(renderer),
+  onFrame(renderer) {
+    placeOfficeTrophy(renderer);
+    if (!state.social) popout?.drawPreview(renderer);
+  },
   label: (s) => (s.agent === 'omp' && s.subagent && s.title) || s.project || AGENT_NAME[s.agent] || s.agent,
   onHover(s, at, click) {
     // In full screen a click opens the agent in the side panel instead of pinning a card.
@@ -1142,6 +1687,7 @@ function hhmm(ms) {
 function panelInset() {
   return state.full && state.side && !matchMedia('(max-width: 760px)').matches ? sideEl.getBoundingClientRect().width || 340 : 0;
 }
+let usagePreviousSide = null;
 function setSide(open, remember = true) {
   state.side = open;
   if (remember) store.set('side', open);
@@ -1159,44 +1705,58 @@ function measureBar() {
   document.documentElement.style.setProperty('--bar', `${Math.round(h)}px`);
 }
 function syncFull() {
-  document.getElementById('sideTitle').textContent = L.agentsTitle;
+  document.getElementById('sideTitle').textContent = state.social ? SocialWorkbench.copy().mode : L.agentsTitle;
   document.getElementById('sideHide').title = L.hidePanel;
   document.getElementById('sideHide').setAttribute('aria-label', L.hidePanel);
   document.getElementById('sideBack').title = L.back;
   document.getElementById('sideBack').setAttribute('aria-label', L.back);
   document.getElementById('sideTab').setAttribute('aria-label', L.showPanel);
 }
+window.addEventListener('codex-usage-open', () => {
+  hideTip();
+  usagePreviousSide = state.side;
+  setSide(true, false);
+  document.getElementById('sideTabCount').textContent = window.CodexUsage?.sideTabLabel?.() || '';
+});
+window.addEventListener('codex-usage-close', () => {
+  if (usagePreviousSide !== null) setSide(usagePreviousSide, false);
+  usagePreviousSide = null;
+  renderSide();
+});
 
 // Agent filter: one chip per client in use, any number selected; none means all.
 function renderChips() {
-  const pool = state.data.sessions.filter((s) => (state.showSub || !s.subagent) && (state.showIdle || s.status !== 'idle'));
+  const pool = scopedSessions().filter((s) => showSession(s) && showStatus(s));
+  const filters = scopedFilters();
   const count = new Map();
   for (const s of pool) count.set(s.agent, (count.get(s.agent) || 0) + 1);
   const order = Object.keys(OFFICE_AGENT_BADGES);
-  const agents = [...new Set([...count.keys(), ...state.agents])]
+  const agents = [...new Set([...count.keys(), ...filters])]
     .sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99) || a.localeCompare(b));
-  const all = !state.agents.length;
+  const all = !filters.length;
   const row = (v, icon, name, n, on) => `<button class="chip-f${on ? ' on' : ''}" data-v="${esc(v)}" aria-pressed="${on}" title="${esc(name)}">` +
     `<span class="box">${CHECK}</span>${icon}<span class="lbl">${esc(name)}</span><b>${n}</b></button>`;
   const html = row('all', '', L.all, pool.length, all) + agents.map((a) => {
     const logo = agentLogo(a) || `<span class="ini">${esc((AGENT_NAME[a] || a).slice(0, 2))}</span>`;
-    return row(a, logo, AGENT_NAME[a] || a, count.get(a) || 0, !all && state.agents.includes(a));
+    return row(a, logo, AGENT_NAME[a] || a, count.get(a) || 0, filters.includes(a));
   }).join('');
   const box = document.getElementById('agentChips');
   if (box.dataset.html !== html) { box.innerHTML = html; box.dataset.html = html; }
   // The button says what is shown: All, one or two names, or how many.
-  const names = state.agents.map((a) => AGENT_NAME[a] || a);
-  document.getElementById('agentName').textContent = all ? L.all : names.length <= 2 ? names.join(', ') : `${names.length}`;
+  const names = filters.map((a) => AGENT_NAME[a] || a);
+  document.getElementById('agentName').textContent = all ? (state.social ? SocialWorkbench.copy().filter : L.all) : names.length <= 2 ? names.join(', ') : `${names.length}`;
   document.getElementById('agentMenu').classList.toggle('active', !all);
 }
 document.getElementById('agentChips').addEventListener('click', (e) => {
   const b = e.target.closest('.chip-f'); if (!b) return;
   const v = b.dataset.v;
-  let next = v === 'all' ? [] : state.agents.includes(v) ? state.agents.filter((x) => x !== v) : [...state.agents, v];
+  const filters = scopedFilters();
+  let next = v === 'all' ? [] : filters.includes(v) ? filters.filter((x) => x !== v) : [...filters, v];
   // Every client picked is the same as all of them.
-  const present = new Set(state.data.sessions.map((s) => s.agent));
+  const present = new Set(scopedSessions().map((s) => s.agent));
   if (next.length && [...present].every((a) => next.includes(a))) next = [];
-  state.agents = next; store.set('agents', next);
+  if (state.social) state.platforms = next;
+  else { state.agents = next; store.set('agents', next); }
   syncControls(); renderNow();
 });
 
@@ -1210,23 +1770,28 @@ function renderSide() {
   const now = Date.now() - state.skew;
   const list = visible();
   document.getElementById('sideCount').textContent = list.length;
-  document.getElementById('sideTabCount').textContent = `${L.agentsTitle} · ${list.length}`;
+  document.getElementById('sideTabCount').textContent = window.CodexUsage?.isOpen?.()
+    ? (window.CodexUsage?.sideTabLabel?.() || '')
+    : `${state.social ? SocialWorkbench.copy().mode : L.agentsTitle} · ${list.length}`;
   const rows = GROUPS.map((g) => {
     const items = list.filter((s) => g.match(s.status));
     if (!items.length) return '';
-    return `<div class="side-group">${esc(L[g.key])} · ${items.length}</div>` + items.map((s, i) => {
+    return `<div class="side-group">${esc(groupTitle(g))} · ${items.length}</div>` + items.map((s, i) => {
       const act = s.stuck ? L.stuck(s.stuck) : s.activity || (s.status === 'done' && s.reply) || s.title || '';
       return `<button class="srow${s.subagent ? ' sub' : ''}" data-key="${esc(s.key)}" style="--s:${statusColor(s.status)};--i:${Math.min(i + (g.key === 'working' ? 3 : g.key === 'finished' ? 8 : 0), 14)}">
         ${agentLogo(s.agent) || '<span></span>'}<span class="nm">${esc(s.project || AGENT_NAME[s.agent] || s.agent)}</span>
         <span class="tm" data-time="${esc(s.key)}"></span>
-        <span class="st"><i></i><b>${esc(L[s.status] || s.status)}</b>${act ? `<span>${esc(act)}</span>` : ''}</span></button>`;
+        <span class="st"><i></i><b>${esc(sessionStatus(s))}</b>${act && act !== sessionStatus(s) ? `<span>${esc(act)}</span>` : ''}</span></button>`;
     }).join('');
   }).join('');
   const box = document.getElementById('sideRows');
-  const html = rows || `<div class="msgs-note">${esc(L.empty)}</div>`;
+  const html = state.social
+    ? SocialWorkbench.listStart() + (rows || (SocialWorkbench.ready() ? `<div class="msgs-note">${esc(scopedSessions().length ? L.empty : SocialWorkbench.copy().noAccounts)}</div>` : ''))
+    : rows || `<div class="msgs-note">${esc(L.empty)}</div>`;
   // Rows re-sort as statuses change; hold them still while the pointer is on
   // the list so a click lands on the agent you aimed at, and catch up on leave.
-  if (box.dataset.html !== html && box.matches(':hover') && box.dataset.html && !rowsNow) { box.dataset.stale = '1'; }
+  if (state.social && SocialEditor.active(box)) { /* keep the account form while data refreshes */ }
+  else if (box.dataset.html !== html && box.matches(':hover') && box.dataset.html && !rowsNow) { box.dataset.stale = '1'; }
   else if (box.dataset.html !== html) {
     box.innerHTML = html; box.dataset.html = html; delete box.dataset.stale;
     box.querySelectorAll('[data-time]').forEach((el) => { const s = list.find((x) => x.key === el.dataset.time); if (s) el.textContent = timeLabel(s, now); });
@@ -1235,6 +1800,11 @@ function renderSide() {
 }
 
 function openDetail(key) {
+  if (window.CodexUsage?.isOpen?.()) window.CodexUsage.close();
+  const list = document.getElementById('sideRows');
+  const detail = document.getElementById('detailBody');
+  if (SocialEditor.active(list)) { SocialEditor.close(list); delete list.dataset.html; renderSide(); }
+  if (sel !== key && SocialEditor.active(detail)) { SocialEditor.close(detail); delete detail.dataset.html; }
   sel = key;
   if (!state.side) setSide(true);
   document.getElementById('sideList').inert = true;
@@ -1251,19 +1821,34 @@ function openDetail(key) {
 }
 function closeDetail() {
   sel = null;
+  const body = document.getElementById('detailBody');
+  if (SocialEditor.active(body)) { SocialEditor.close(body); delete body.dataset.html; }
   sideEl.classList.remove('detail');
   document.getElementById('sideList').inert = false;
   document.getElementById('sideDetail').inert = true;
 }
 
 function renderDetail(scrollDown) {
-  const s = state.data.sessions.find((x) => x.key === sel);
+  const s = scopedSessions().find((x) => x.key === sel);
   if (!s) { closeDetail(); return; }
   const now = Date.now() - state.skew;
   document.getElementById('detailTitle').innerHTML = `${agentLogo(s.agent)}${esc(s.project || AGENT_NAME[s.agent] || s.agent)}`;
+  const body = document.getElementById('detailBody');
+  if (s.social) {
+    if (SocialEditor.active(body)) return;
+    const html = SocialWorkbench.detail(s);
+    if (body.dataset.html !== html) {
+      const expanded = new Set(scrollDown ? [] : [...body.querySelectorAll('details[open]')].map((entry) => entry.dataset.socialRecord));
+      const top = scrollDown ? 0 : body.scrollTop;
+      body.innerHTML = html;
+      body.dataset.html = html;
+      for (const entry of body.querySelectorAll('details')) entry.open = expanded.has(entry.dataset.socialRecord);
+      body.scrollTop = top;
+    } else if (scrollDown) body.scrollTop = 0;
+    return;
+  }
   // Fetch again whenever the agent logged something new.
   if (convo.at !== s.lastEventAt && !convo.busy) loadConvo(s);
-  const body = document.getElementById('detailBody');
   const nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
   const msgs = convo.private ? `<div class="msgs-note">${esc(L.privateNote)}</div>`
     : convo.messages == null ? `<div class="msgs-note">${esc(L.loadingMsgs)}</div>`
@@ -1309,13 +1894,86 @@ async function loadConvo(s) {
   if (sel === key) renderDetail();
 }
 
-document.getElementById('sideHide').addEventListener('click', () => setSide(false));
-document.getElementById('sideTab').addEventListener('click', () => setSide(true));
+document.getElementById('sideHide').addEventListener('click', () => setSide(false, !window.CodexUsage?.isOpen?.()));
+document.getElementById('sideTab').addEventListener('click', () => setSide(true, !window.CodexUsage?.isOpen?.()));
 document.getElementById('sideBack').addEventListener('click', closeDetail);
 document.getElementById('sideRows').addEventListener('mouseleave', (e) => { if (e.currentTarget.dataset.stale) renderSide(); });
 document.getElementById('sideRows').addEventListener('click', (e) => {
   const b = e.target.closest('.srow'); if (b) openDetail(b.dataset.key);
 });
+
+async function refreshSocial() {
+  await SocialWorkbench.refresh();
+  if (state.social) renderNow();
+}
+const socialScope = document.getElementById('socialScope');
+socialScope.addEventListener('click', () => {
+  if (window.CodexUsage?.isOpen?.()) window.CodexUsage?.close?.();
+  const list = document.getElementById('sideRows');
+  if (SocialEditor.active(list)) { SocialEditor.close(list); delete list.dataset.html; }
+  hideTip();
+  closeDetail();
+  state.social = !state.social;
+  document.body.classList.toggle('social-mode', state.social);
+  if (state.social && !state.side) setSide(true, false);
+  syncControls();
+  measureBar();
+  renderNow();
+  if (state.social) void refreshSocial();
+});
+if (!PIP) {
+  fetch('/api/social-workbench/status').then((response) => {
+    socialScope.hidden = response.status !== 204;
+    measureBar();
+  }).catch(() => {});
+  setInterval(() => { if (state.social && !document.hidden) void refreshSocial(); }, 30_000);
+}
+
+async function socialAction(event) {
+  const control = event.target.closest('[data-social-action]');
+  if (!state.social || !control) return;
+  const action = control.dataset.socialAction;
+  const id = control.dataset.socialId;
+  const host = event.currentTarget;
+  const t = SocialWorkbench.copy();
+  if (action === 'retry') { await refreshSocial(); return; }
+  const current = scopedSessions().find((session) => session.key === sel)?.social;
+  if (action === 'sync' || action === 'unbind') {
+    if (action === 'unbind' && !current) return;
+    control.disabled = true;
+    try {
+      await SocialWorkbench.request(action, action === 'sync' ? {} : {
+        account_id: current.account.id, thread_id: id,
+      });
+      if (action === 'sync') SocialWorkbench.setNotice(t.synced);
+      await refreshSocial();
+    } catch (error) {
+      const note = document.createElement('p');
+      note.className = 'msgs-note';
+      note.setAttribute('role', 'alert');
+      note.textContent = error.message;
+      control.parentElement?.append(note);
+    } finally { control.disabled = false; }
+    return;
+  }
+  if (!current && action !== 'add') return;
+  const account = action === 'add' ? null : current.account;
+  const kind = action === 'add' || action === 'edit' ? 'account' : action;
+  const record = current?.publications.find((entry) => entry.id === id);
+  const restore = () => { SocialEditor.close(host); delete host.dataset.html; renderNow(); };
+  SocialEditor.open(host, {
+    action: kind, account, record, chats: current?.chats || [], labels: t,
+    request: SocialWorkbench.request,
+    onCancel: restore,
+    onDone: async (_, result, { close }) => {
+      if (close) restore();
+      await refreshSocial();
+      if (state.social && action === 'add' && result?.account?.id) openDetail('social:' + result.account.id);
+    },
+  });
+}
+document.getElementById('sideRows').addEventListener('click', socialAction);
+document.getElementById('detailBody').addEventListener('click', socialAction);
 document.addEventListener('keydown', (e) => {
   if (e.target.closest?.('input, select, textarea, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === 'Escape' && state.full && sel) closeDetail();
@@ -1331,5 +1989,8 @@ if (state.full) {
 
 setInterval(tickTimes, 1000);
 </script>
+<script src="/library.js"></script>
+<script src="/workflow-canvas.js"></script>
+<script src="/achievements.js"></script>
 </body>
 </html>

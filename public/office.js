@@ -23,6 +23,9 @@
     antigravity: ['#0ea5e9', '#38bdf8', '#0284c7', '#7dd3fc'],
     opencode: ['#2f6fd0', '#4a86e0', '#2559b0', '#7aa5ee'],
     hermes: ['#b4622d', '#d07c44', '#96501f', '#e2a374'],
+    'social-x': ['#3b4857', '#536579', '#29323f', '#718399'],
+    'social-douyin': ['#287c80', '#45999d', '#226267', '#60aaae'],
+    'social-xhs': ['#c34a56', '#d7707a', '#a63744', '#e08b92'],
   };
   // Official product icons, shared by both renderers and the page UI (OMP: a neutral monogram).
   // Load once per page from the same origin so video capture stays readable.
@@ -40,8 +43,12 @@
     antigravity: { label: 'Antigravity', short: 'Ag', color: '#0ea5e9', logo: '/assets/agents/antigravity.png' },
     opencode: { label: 'OpenCode', short: 'Oc', color: '#2f6fd0', logo: '/assets/agents/opencode.svg', mono: true },
     hermes: { label: 'Hermes', short: 'He', color: '#b4622d', logo: '/assets/agents/hermes.svg', mono: true },
+    'social-x': { label: 'X', short: 'X' },
+    'social-douyin': { label: '抖音', short: '抖' },
+    'social-xhs': { label: '小红书', short: '红' },
   };
   for (const badge of Object.values(AGENT_BADGES)) {
+    if (!badge.logo) continue;
     badge.image = new Image();
     badge.image.src = badge.logo;
   }
@@ -1445,7 +1452,7 @@
       const c = this.ctx;
       c.save();
       c.globalAlpha = 1;
-      if (badge.image.complete && badge.image.naturalWidth > 0) {
+      if (badge.image?.complete && badge.image.naturalWidth > 0) {
         if (badge.mono && this.pal.dark) c.filter = 'invert(1)';
         c.imageSmoothingEnabled = true;
         c.imageSmoothingQuality = 'high';

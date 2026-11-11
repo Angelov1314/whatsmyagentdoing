@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vibe coding 成就社区榜单">
+  <title>Vibe Hall · 氛围编程名人堂</title>
+  <link rel="stylesheet" href="/hall.css">
+  <script src="/hall.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <a class="wordmark" href="/" aria-label="Vibe Hall 首页"><span class="wordmark-mark">✳</span> VIBE HALL</a>
+      <span class="masthead-note">一个给创作者的公开荣誉墙</span>
+    </header>
+
+    <section class="intro" aria-labelledby="title">
+      <div class="intro-copy">
+        <p class="eyebrow">BUILD · PLAY · COLLECT</p>
+        <h1 id="title">氛围编程<br><span>名人堂</span></h1>
+        <p class="lede">把每一次动手、每一段连胜，收进你的创作履历。</p>
+        <p class="disclosure"><span class="disclosure-dot" aria-hidden="true"></span> 成就由用户客户端统计并自行提交；榜单为自我申报，不是经审计的全网统计。</p>
+      </div>
+      <div class="hero-stamp" aria-hidden="true">
+        <div class="stamp-ring"><span>MAKE<br>THINGS<br>HAPPEN</span><b>✳</b></div>
+        <span class="stamp-caption">YOUR WORK<br>YOUR STORY</span>
+      </div>
+    </section>
+
+    <section class="board" aria-labelledby="board-title">
+      <div class="board-heading">
+        <div>
+          <p class="eyebrow">THE COMMUNITY BOARD</p>
+          <h2 id="board-title">创作者榜单</h2>
+        </div>
+        <div class="board-count"><strong id="total">—</strong><span>位创作者</span></div>
+      </div>
+      <label class="ranking-filter" for="ranking-metric">排行榜 <select id="ranking-metric"><option value="tokens">最多 Token 消耗</option><option value="projects">最多项目</option><option value="sessions">最多会话</option><option value="activeDays">最多活跃天数</option><option value="streak">最多连续天数</option><option value="agents">最多 Agent 类型</option><option value="">最多成就积分</option></select></label>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">名次</th><th scope="col">创作者</th><th scope="col">已解锁成就</th><th scope="col" class="score-head">积分</th></tr></thead>
+          <tbody id="entries"><tr><td colspan="4" class="empty">正在打开荣誉墙…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="board-footer">
+        <span id="page-label" aria-live="polite">第 1 页</span>
+        <nav class="pagination" aria-label="榜单分页">
+          <button id="prev" type="button" aria-label="上一页">←</button>
+          <button id="next" type="button" aria-label="下一页">→</button>
+        </nav>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>为每一个认真动手的晚上，留一枚徽章。</span>
+      <span>VIBE HALL <b>✳</b></span>
+    </footer>
+  </main>
+</body>
+</html>

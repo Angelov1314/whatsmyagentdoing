@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>whatsmyagentdoing · /myoffice</title>
-<meta name="description" content="Type /myoffice and watch every Claude Code, Codex, Gemini, Copilot and OMP agent on your machine work in a live little office. Local, read-only, zero setup.">
+<title>MyOffice · upstream showcase archive</title>
+<meta name="description" content="Type /myoffice and watch every Claude Code, Codex, Gemini, Copilot and OMP agent on your machine work in a live little office. Local session monitoring with optional skill libraries and consent-based Hall sharing.">
 <meta property="og:title" content="whatsmyagentdoing — see what every coding agent is doing">
 <meta property="og:description" content="A Claude Code / Codex skill: a live office of every agent on your machine.">
 <meta property="og:image" content="https://charonyuu.github.io/whatsmyagentdoing/site/img/scene-office.jpg">
@@ -259,6 +259,11 @@
 </style>
 </head>
 <body>
+<aside role="note" style="padding:16px 24px;background:#1d2119;color:#f6f6f3;border-bottom:1px solid #38412e;line-height:1.6">
+  <strong>上游展示頁存檔 / Upstream showcase archive</strong><br>
+  此頁保留自 <a style="color:inherit;text-decoration:underline" href="https://github.com/Charonyuu/whatsmyagentdoing">Charonyuu/whatsmyagentdoing v0.8.1</a>，未完整介紹本 fork 的技能書房與成就功能。安裝指令已指向本 fork，隱私說明已補充可選的資料公開。請以 <a style="color:inherit;text-decoration:underline" href="https://github.com/Angelov1314/whatsmyagentdoing#readme">目前 README 與演示</a> 為準。<br>
+  Preserved upstream showcase; it does not describe every fork addition. Install links target this fork and privacy copy includes optional publication. See the <a style="color:inherit;text-decoration:underline" href="https://github.com/Angelov1314/whatsmyagentdoing#readme">current README and demos</a> for this release.
+</aside>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="i-office" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8.5 20h7M12 16v4"/><path d="M7 8.5h4M7 11.5h7"/></symbol>
@@ -297,7 +302,7 @@
       <a class="nl hide-sm" href="#scenes" data-i="navScenes">Scenes</a>
       <a class="nl hide-sm" href="#install" data-i="navInstall">Install</a>
       <button class="lang" id="langBtn" type="button">中文</button>
-      <a class="gh" href="https://github.com/Charonyuu/whatsmyagentdoing" aria-label="GitHub">
+      <a class="gh" href="https://github.com/Angelov1314/whatsmyagentdoing" aria-label="GitHub">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         <span class="t">GitHub</span>
       </a>
@@ -327,7 +332,7 @@
     </div>
     <p class="note" data-i="note">Node.js 18+ · no npm install · no API keys · macOS, Linux and Windows</p>
     <div class="cta">
-      <a class="btn primary" href="https://github.com/Charonyuu/whatsmyagentdoing" ><svg class="btn-svg" aria-hidden="true"><use href="#i-star"/></svg><span data-i="ctaStar">Star on GitHub</span></a>
+      <a class="btn primary" href="https://github.com/Angelov1314/whatsmyagentdoing" ><svg class="btn-svg" aria-hidden="true"><use href="#i-star"/></svg><span data-i="ctaStar">Star on GitHub</span></a>
       <a class="btn" href="#features" ><span data-i="ctaTour">Take the tour</span><svg class="btn-svg" aria-hidden="true"><use href="#i-down"/></svg></a>
     </div>
 
@@ -434,7 +439,7 @@
       <div class="card new"><div class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-chart"/></svg></div><h3 data-i="f4">Today at a glance</h3><p data-i="f4d">Turns, tokens and your busiest projects today, plus a context-window bar on every card.</p></div>
       <div class="card new"><div class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-alert"/></svg></div><h3 data-i="f5">Stuck detection</h3><p data-i="f5d">A tool or a thought that goes silent for too long gets flagged before you waste an hour waiting on it.</p></div>
       <div class="card"><div class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-pip"/></svg></div><h3 data-i="f6">Pop it out</h3><p data-i="f6d">An always-on-top picture-in-picture window of the office or the list, synced with the main tab.</p></div>
-      <div class="card"><div class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-lock"/></svg></div><h3 data-i="f7">Private by design</h3><p data-i="f7d">Read-only, bound to 127.0.0.1, nothing leaves your machine. <code>--private</code> hides prompts for screen sharing.</p></div>
+      <div class="card"><div class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-lock"/></svg></div><h3 data-i="f7">Private by design</h3><p data-i="f7d">Local by default, bound to 127.0.0.1. Optional Hall publication sends the exact profile you preview and approve. <code>--private</code> hides prompts for screen sharing.</p></div>
       <div class="card"><div class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-globe"/></svg></div><h3 data-i="f8">Speaks your language</h3><p data-i="f8d">Nine languages, picked from the language you write your prompts in.</p></div>
     </div>
   </section>
@@ -463,7 +468,7 @@
         <p class="lead" data-i="todayLead">The Today panel adds up turns and tokens from Claude and Codex usage records since midnight, by agent and by project.</p>
         <ul class="ticks">
           <li data-i="t1">Context bars turn amber at 60% and red at 85%, before a compaction surprises you</li>
-          <li data-i="t2">Counted from your local logs only: nothing is sent anywhere</li>
+          <li data-i="t2">Today totals are computed locally. Optional Hall publication follows a separate profile preview and consent flow.</li>
         </ul>
       </div>
       <div class="frame today-img reveal"><img src="site/img/today.jpg" width="680" height="908" alt="The Today panel: turns, tokens, agents and busiest projects" loading="lazy"></div>
@@ -497,7 +502,7 @@
       <div class="step"><h3 data-i="h2t">Turn events into states</h3><p data-i="h2d">The latest event becomes Thinking, Running, Waiting or Done. Large logs read only their head and tail.</p></div>
       <div class="step"><h3 data-i="h3t">Stream to your browser</h3><p data-i="h3d">A tiny local server pushes snapshots over Server-Sent Events to the page. That's the whole stack.</p></div>
     </div>
-    <div class="privacy reveal"><span class="priv-ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-shield"/></svg></span><p data-i="privacy"><strong>Nothing leaves your machine.</strong> The server binds to 127.0.0.1 and rejects requests not addressed to localhost. The only network call is an optional version check, which you can turn off with <code>WMAD_NO_UPDATE_CHECK=1</code>.</p></div>
+    <div class="privacy reveal"><span class="priv-ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-shield"/></svg></span><p data-i="privacy"><strong>Local by default; public sharing is optional.</strong> The dashboard binds to 127.0.0.1. If you configure a public HTTPS Hall, only a profile you preview and explicitly approve is published: alias, badge IDs, score and six aggregate statistics. Prompts, session text and project paths are excluded. Public Hall hosting is not included. Optional version checks can be disabled with <code>WMAD_NO_UPDATE_CHECK=1</code>.</p></div>
   </section>
 
   <section class="wrap" id="faq">
@@ -506,7 +511,7 @@
       <h2 data-i="faqH">Questions</h2>
     </div>
     <div class="faq reveal">
-      <details class="q"><summary data-i="q1">Does it slow my agents down or change anything?</summary><p data-i="a1">No. It only reads log files. The optional approval hook writes one tiny marker file per permission prompt into <code>~/.whatsmyagentdoing</code> and nothing else.</p></details>
+      <details class="q"><summary data-i="q1">Does it slow my agents down or change anything?</summary><p data-i="a1">Agent session logs are read without modifying them. This fork saves local achievement state in <code>~/.whatsmyagentdoing/achievements-v1.json</code>; optional approval hooks also save permission markers. Optional integrations may save their own local app data after user actions.</p></details>
       <details class="q"><summary data-i="q2">Why does Claude Code show “Running” while it waits for my approval?</summary><p data-i="a2">Claude Code doesn't log permission prompts. Run <code>node bin/cli.js --install-hook</code> once to add an optional Notification hook, and they'll show as “Waiting for you”. <code>--uninstall-hook</code> removes it.</p></details>
       <details class="q"><summary data-i="q3">How do I update?</summary><p data-i="a3">The page tells you when a new version is out. Click Update, run <code>/myoffice update</code>, or <code>git pull</code> in the skill folder.</p></details>
       <details class="q"><summary data-i="q4">Can I share my screen with it open?</summary><p data-i="a4">Yes. Start it with <code>--private</code> to hide prompts, replies and titles and show status only.</p></details>
@@ -519,7 +524,7 @@
       <h2 data-i="finalH">Open your office.</h2>
       <p class="lead" style="margin:0 auto 26px" data-i="finalLead">Paste one line into Claude Code or Codex, then type /myoffice.</p>
       <div class="install" id="installBox2"><div class="cmd" id="cmd2"></div></div>
-      <div class="cta"><a class="btn primary" href="https://github.com/Charonyuu/whatsmyagentdoing" data-i="ctaRepo">View on GitHub</a></div>
+      <div class="cta"><a class="btn primary" href="https://github.com/Angelov1314/whatsmyagentdoing" data-i="ctaRepo">View on GitHub</a></div>
     </div>
   </div>
 </main>
@@ -527,7 +532,7 @@
 <footer>
   <div class="wrap">
     <span data-i="footL">MIT licensed · 3D models by <a href="https://kenney.nl">Kenney</a> (CC0) · Brand marks belong to their owners.</span>
-    <span><a href="https://github.com/Charonyuu/whatsmyagentdoing">GitHub</a> · <a href="https://github.com/Charonyuu/whatsmyagentdoing/issues" data-i="issues">Issues</a></span>
+    <span><a href="https://github.com/Angelov1314/whatsmyagentdoing">GitHub</a> · <a href="https://github.com/Angelov1314/whatsmyagentdoing/issues" data-i="issues">Issues</a></span>
   </div>
 </footer>
 
@@ -535,7 +540,7 @@
 
 <script>
 document.documentElement.classList.add('js');
-const REPO = 'https://github.com/Charonyuu/whatsmyagentdoing';
+const REPO = 'https://github.com/Angelov1314/whatsmyagentdoing';
 const CMDS = {
   ask: { en: `Install the myoffice skill from ${REPO}: clone it with \`git clone --depth 1\` into ~/.claude/skills/myoffice (for Codex: ~/.codex/skills/myoffice), check that \`node --version\` is 18 or newer, then tell me to start a new session and type /myoffice.`,
     zh: `請從 ${REPO} 安裝 myoffice skill：用 \`git clone --depth 1\` 複製到 ~/.claude/skills/myoffice（Codex 用 ~/.codex/skills/myoffice），確認 \`node --version\` 是 18 以上，然後提醒我開新的 session 並輸入 /myoffice。` },
@@ -564,21 +569,21 @@ const ZH = {
   f4: '今日總結', f4d: '今天的輪數、token 和最忙的專案，每張卡片也有 context 用量條。',
   f5: '卡住偵測', f5d: '工具或思考太久沒動靜就標出來，不用白等一小時。',
   f6: '子母畫面', f6d: '永遠置頂的小視窗，可放辦公室或列表，跟主分頁同步。',
-  f7: '隱私優先', f7d: '只讀不寫、只綁 127.0.0.1，資料不會離開你的電腦。<code>--private</code> 可在分享螢幕時隱藏 prompt。',
+  f7: '隱私優先', f7d: '資料預設留在本機，只綁 127.0.0.1。可選的 Hall 公開功能只發送你預覽並同意的資料。<code>--private</code> 可在分享螢幕時隱藏 prompt。',
   f8: '說你的語言', f8d: '支援九種語言，會依你寫 prompt 的語言自動選擇。',
   listEyebrow: '列表模式', listH: '比較喜歡卡片？', listLead: '切到列表：依需要你的程度分組，附上即時計時器和 agent 最新的 prompt 與回覆。',
   l1: '每個 session 都能一鍵複製接續指令', l2: '可依 agent 篩選，切換顯示子 agent 和閒置的 session', l3: '分頁標題會顯示工作中的數量，在別的分頁也看得到',
   todayEyebrow: '0.4 新功能', todayH: '團隊今天做了多少？', todayLead: '今日面板會從午夜起，加總 Claude 和 Codex 的用量紀錄，依 agent 和專案統計輪數與 token。',
-  t1: 'Context 用量到 60% 變橘、85% 變紅，壓縮前就先提醒你', t2: '只從本機 log 統計，什麼都不會送出去',
+  t1: 'Context 用量到 60% 變橘、85% 變紅，壓縮前就先提醒你', t2: '今日面板在本機統計；可選 Hall 另依完整預覽與明確同意流程公開彙總資料。',
   scenesEyebrow: '場景', scenesH: '帶團隊去好玩的地方。', scenesLead: '辦公室是內建的。其他 3D 場景是 100–230 KB 的場景包，選了才下載，並用固定的 SHA-256 驗證。',
   scGrave: '萬聖節墓園', newSmall: '新', scOffice: '辦公室', builtIn: '內建', scPirate: '海盜灣', scCafe: '咖啡廳', scStation: '太空站', scCastle: '城堡',
   howEyebrow: '運作方式', howH: '不用 hook、不用設定、不用 key。', howLead: '你的 agent 本來就會把每則訊息和工具呼叫寫到硬碟，whatsmyagentdoing 只是跟著讀。',
   h1t: '跟著讀 log', h1d: '<code>~/.claude</code>、<code>~/.codex</code>、<code>~/.gemini</code> 等目錄下的 session log 會被逐步讀取，從不寫入。',
   h2t: '把事件變成狀態', h2d: '最新的事件會變成思考中、執行中、等你或已完成。很大的 log 只讀開頭和結尾。',
   h3t: '串流到瀏覽器', h3d: '一個很小的本機伺服器透過 Server-Sent Events 把狀態推到頁面，整個架構就這樣。',
-  privacy: '<strong>資料不會離開你的電腦。</strong>伺服器只綁 127.0.0.1，不是送給 localhost 的請求一律拒絕。唯一的網路請求是可選的版本檢查，設定 <code>WMAD_NO_UPDATE_CHECK=1</code> 就能關掉。',
+  privacy: '<strong>資料預設留在本機；公開分享為可選。</strong>看板只綁 127.0.0.1。自行配置 HTTPS Hall 後，只有你預覽並明確同意的暱稱、徽章 ID、積分與六項彙總統計會公開，不含提示詞、會話文字或專案路徑。本倉庫不代管公共 Hall。可選版本檢查可用 <code>WMAD_NO_UPDATE_CHECK=1</code> 關閉。',
   faqH: '常見問題',
-  q1: '會拖慢 agent 或改到什麼東西嗎？', a1: '不會。它只讀 log。可選的批准 hook 每次權限提示只會在 <code>~/.whatsmyagentdoing</code> 寫一個很小的標記檔，其他什麼都不動。',
+  q1: '會拖慢 agent 或改到什麼東西嗎？', a1: 'Agent 會話日誌只讀不改。本 fork 會在 <code>~/.whatsmyagentdoing/achievements-v1.json</code> 儲存本機成就狀態；可選批准 hook 也會儲存權限標記。可選接入服務可能依使用者操作儲存自身的本機資料。',
   q2: '為什麼 Claude Code 在等我批准時顯示「執行中」？', a2: 'Claude Code 不會把權限提示寫進 log。執行一次 <code>node bin/cli.js --install-hook</code> 加上可選的 Notification hook，就會顯示「等你回應」。<code>--uninstall-hook</code> 可以移除。',
   q3: '要怎麼更新？', a3: '有新版時頁面會提醒你。按「更新」、執行 <code>/myoffice update</code>，或在 skill 資料夾裡 <code>git pull</code>。',
   q4: '開著它可以分享螢幕嗎？', a4: '可以。用 <code>--private</code> 啟動就會隱藏 prompt、回覆和標題，只顯示狀態。',

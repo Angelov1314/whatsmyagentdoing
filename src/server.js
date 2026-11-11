@@ -12,6 +12,16 @@ const STATIC = {
   '/office3d.js': ['office3d.js', 'text/javascript; charset=utf-8'],
   '/i18n.js': ['i18n.js', 'text/javascript; charset=utf-8'],
   '/popout.js': ['popout.js', 'text/javascript; charset=utf-8'],
+  '/library.css': ['library.css', 'text/css; charset=utf-8'],
+  '/library.js': ['library.js', 'text/javascript; charset=utf-8'],
+  '/workflow-canvas.css': ['workflow-canvas.css', 'text/css; charset=utf-8'],
+  '/workflow-canvas.js': ['workflow-canvas.js', 'text/javascript; charset=utf-8'],
+  '/achievements.js': ['achievements.js', 'text/javascript; charset=utf-8'],
+  '/achievements.css': ['achievements.css', 'text/css; charset=utf-8'],
+  '/social-workbench.js': ['social-workbench.js', 'text/javascript; charset=utf-8'],
+  '/social-edit.js': ['social-edit.js', 'text/javascript; charset=utf-8'],
+  '/codex-usage.js': ['codex-usage.js', 'text/javascript; charset=utf-8'],
+  '/codex-usage.css': ['codex-usage.css', 'text/css; charset=utf-8'],
 };
 const TYPES = { '.js': 'text/javascript; charset=utf-8', '.glb': 'model/gltf-binary', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
 // 3D models, served as-is (3D view only).
@@ -20,6 +30,13 @@ const scenes = require('./scenes');
 const updater = require('./update');
 const { ompResumeCommand } = require('./omp');
 const { dayKey } = require('./parsers');
+const { createLibrary } = require('./library');
+const { createAchievements } = require('./achievements');
+const { createSocialWorkbenchBridge } = require('./social-workbench');
+const socialWorkbench = createSocialWorkbenchBridge();
+const { createCodexUsageBridge } = require('./codex-usage');
+const codexUsage = createCodexUsageBridge();
+const { createWorkflowCanvas } = require('./workflow-canvas');
 
 function serveFile(res, root, rel) {
   const file = path.normalize(path.join(root, rel));
@@ -120,7 +137,14 @@ function snapshot(watcher, opts) {
   return { now, lang: opts.demo ? null : promptLanguage(raw), sessions, summary: summary(sessions, now) };
 }
 
-function createServer(watcher, opts, { onShutdown, onRestart } = {}) {
+function createServer(watcher, opts, {
+  onShutdown, onRestart, library = createLibrary(), socialWorkbenchBridge = socialWorkbench,
+  codexUsageBridge = codexUsage, achievements, achievementsDataDir, workflowCanvas = createWorkflowCanvas(),
+} = {}) {
+  const achievementService = achievements || createAchievements({
+    dataDir: achievementsDataDir,
+    usageSummary: () => codexUsageBridge?.usageSummary?.() ?? null,
+  });
   const clients = new Set();
   let last = '';
 
@@ -147,10 +171,61 @@ function createServer(watcher, opts, { onShutdown, onRestart } = {}) {
       return;
     }
     const url = new URL(req.url, 'http://localhost');
-    if (STATIC[url.pathname]) {
+    const workflowRequest = url.pathname === '/api/workflows' || url.pathname === '/workflow-canvas' || url.pathname.startsWith('/workflow-canvas/');
+    if (workflowRequest && (opts.privacy || opts.demo)) {
+      res.writeHead(403, { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' }).end();
+      return;
+    }
+    if (url.pathname === '/' && (opts.privacy || opts.demo)) {
+      fs.readFile(path.join(PUBLIC, 'index.html'), 'utf8', (failure, html) => {
+        if (failure) { res.writeHead(500).end(); return; }
+        const view = html.replace(/<body(\s[^>]*)?>/i, (tag) => tag.replace(/>$/, ' data-achievements-disabled="true" data-workflow-canvas-disabled="true">'));
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }).end(view);
+      });
+    } else if (STATIC[url.pathname]) {
       const [file, type] = STATIC[url.pathname];
-      res.writeHead(200, { 'content-type': type, 'cache-control': 'no-store' });
+      const headers = { 'content-type': type, 'cache-control': 'no-store' };
+      if (url.pathname === '/workflow-canvas.js' || url.pathname === '/workflow-canvas.css') headers['x-content-type-options'] = 'nosniff';
+      res.writeHead(200, headers);
       fs.createReadStream(path.join(PUBLIC, file)).pipe(res);
+    } else if (url.pathname === '/api/workflows') {
+      if (req.method !== 'GET') { res.writeHead(405, { allow: 'GET', 'cache-control': 'no-store' }).end(); return; }
+      try {
+        res.writeHead(200, {
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'no-store',
+          'x-content-type-options': 'nosniff',
+          'cross-origin-resource-policy': 'same-origin',
+        }).end(JSON.stringify({ workflows: workflowCanvas.catalog() }));
+      } catch {
+        res.writeHead(500, {
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'no-store',
+          'x-content-type-options': 'nosniff',
+        }).end(JSON.stringify({ error: 'Could not read workflow catalog' }));
+      }
+    } else if (url.pathname === '/workflow-canvas' || url.pathname.startsWith('/workflow-canvas/')) {
+      if (req.method !== 'GET') { res.writeHead(405, { allow: 'GET', 'cache-control': 'no-store' }).end(); return; }
+      const encoded = url.pathname.slice('/workflow-canvas/'.length);
+      let id;
+      try { id = decodeURIComponent(encoded); } catch { res.writeHead(400, { 'cache-control': 'no-store' }).end(); return; }
+      const embedValues = url.searchParams.getAll('embed');
+      if (embedValues.length > 1 || (embedValues.length === 1 && embedValues[0] !== '1')) {
+        res.writeHead(400, { 'cache-control': 'no-store' }).end();
+        return;
+      }
+      const item = workflowCanvas.get(id);
+      if (!item) { res.writeHead(404, { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' }).end(); return; }
+      const embedded = embedValues.length === 1;
+      const frameAncestors = embedded ? "'self'" : "'none'";
+      res.writeHead(200, {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'no-store',
+        'x-content-type-options': 'nosniff',
+        'cross-origin-resource-policy': 'same-origin',
+        'x-frame-options': embedded ? 'SAMEORIGIN' : 'DENY',
+        'content-security-policy': `default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; navigate-to 'self'; worker-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors ${frameAncestors}`,
+      }).end(item.html);
     } else if (Object.keys(MOUNTS).some((m) => url.pathname.startsWith(m))) {
       const m = Object.keys(MOUNTS).find((k) => url.pathname.startsWith(k));
       let rel;
@@ -183,6 +258,47 @@ function createServer(watcher, opts, { onShutdown, onRestart } = {}) {
         (x) => { res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify({ ok: true, id: x.id })); },
         (e) => { res.writeHead(400, { 'content-type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: String(e.message || e) })); },
       );
+    } else if (url.pathname === '/api/library' || url.pathname === '/api/library/skill') {
+      if (req.method !== 'GET') { res.writeHead(405, { allow: 'GET' }).end(); return; }
+      const headers = {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store',
+        'x-content-type-options': 'nosniff',
+        'cross-origin-resource-policy': 'same-origin',
+      };
+      try {
+        if (url.pathname === '/api/library') {
+          const categories = library.catalog();
+          res.writeHead(200, headers).end(JSON.stringify({ categories }));
+        } else {
+          const skill = library.getSkill(url.searchParams.get('id'));
+          res.writeHead(skill ? 200 : 404, headers).end(JSON.stringify(skill ? { skill } : { error: 'Skill not found' }));
+        }
+      } catch {
+        res.writeHead(500, headers).end(JSON.stringify({ error: 'Could not read skill library' }));
+      }
+    } else if (url.pathname === '/api/social-workbench' || url.pathname.startsWith('/api/social-workbench/')) {
+      socialWorkbenchBridge.handle(req, res, url, opts).catch((error) => {
+        if (res.headersSent) { res.destroy(); return; }
+        const status = Number.isInteger(error.status) ? error.status : 503;
+        const message = status === 413 ? 'Request body too large' : 'Social workbench unavailable';
+        res.writeHead(status, {
+          'cache-control': 'no-store',
+          'content-type': 'application/json; charset=utf-8',
+          'x-content-type-options': 'nosniff',
+        });
+        res.end(JSON.stringify({ error: message }));
+      });
+    } else if (url.pathname === '/api/codex-usage' || url.pathname.startsWith('/api/codex-usage/')) {
+      codexUsageBridge.handle(req, res, url, opts).catch(() => {
+        if (res.headersSent) res.destroy();
+        else res.writeHead(503, { 'cache-control': 'no-store' }).end();
+      });
+    } else if (url.pathname === '/api/achievements' || url.pathname.startsWith('/api/achievements/')) {
+      achievementService.handle(req, res, url, opts, watcher).catch(() => {
+        if (res.headersSent) res.destroy();
+        else res.writeHead(503, { 'cache-control': 'no-store' }).end();
+      });
     } else if (url.pathname === '/api/transcript') {
       // --private hides prompts and replies everywhere, so it hides the conversation too.
       const key = url.searchParams.get('key') || '';
@@ -221,7 +337,11 @@ function createServer(watcher, opts, { onShutdown, onRestart } = {}) {
         (e) => { res.writeHead(400, { 'content-type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: String(e.message || e) })); },
       );
     } else if (url.pathname === '/api/ping') {
-      res.writeHead(200, { 'content-type': 'application/json' });
+      res.writeHead(200, {
+        'content-type': 'application/json',
+        'x-whatsmyagentdoing-demo': opts.demo ? '1' : '0',
+        'x-whatsmyagentdoing-private': opts.privacy ? '1' : '0',
+      });
       res.end(JSON.stringify({ app: 'whatsmyagentdoing' }));
     } else if (url.pathname === '/events') {
       res.writeHead(200, {
@@ -236,6 +356,7 @@ function createServer(watcher, opts, { onShutdown, onRestart } = {}) {
       res.writeHead(404).end();
     }
   });
+  achievementService.attach(watcher, opts, server);
   return server;
 }
 

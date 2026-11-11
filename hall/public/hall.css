@@ -1,0 +1,99 @@
+:root {
+  color-scheme: light;
+  --ink: #1c2925;
+  --muted: #68746c;
+  --paper: #f4f1e8;
+  --card: #fffdf7;
+  --green: #b9e443;
+  --green-dark: #415d27;
+  --line: #ddd9c9;
+  --orange: #ee744e;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', 'Noto Sans SC', sans-serif;
+  background-image: radial-gradient(#d8d4c5 0.65px, transparent 0.65px);
+  background-size: 15px 15px;
+}
+button { font: inherit; }
+.shell { width: min(1040px, calc(100% - 40px)); margin: 0 auto; }
+.masthead { height: 76px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.wordmark { text-decoration: none; color: var(--ink); font: 500 13px 'DM Mono', monospace; letter-spacing: .13em; }
+.wordmark-mark { color: var(--orange); font-size: 20px; vertical-align: -2px; margin-right: 7px; }
+.masthead-note { color: var(--muted); font-size: 12px; }
+.intro { min-height: 345px; display: flex; align-items: center; justify-content: space-between; position: relative; padding: 44px 7.5% 40px; border-bottom: 1px solid var(--line); overflow: hidden; }
+.intro-copy { position: relative; z-index: 1; max-width: 600px; }
+.eyebrow { margin: 0 0 14px; color: #728064; font: 500 10px 'DM Mono', monospace; letter-spacing: .19em; }
+h1 { margin: 0; font-size: clamp(44px, 6.5vw, 70px); letter-spacing: -.06em; line-height: 1.06; font-weight: 900; }
+h1 span { color: var(--green-dark); }
+.lede { font-size: 15px; margin: 18px 0 0; color: #46524a; }
+.disclosure { display: flex; align-items: flex-start; gap: 8px; max-width: 480px; margin: 20px 0 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+.disclosure-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); margin-top: 5px; flex: 0 0 auto; }
+.hero-stamp { position: relative; width: 210px; height: 210px; margin-right: 2%; transform: rotate(8deg); flex: 0 0 auto; }
+.stamp-ring { position: absolute; inset: 8px; display: grid; place-items: center; border: 1px solid #afbd89; border-radius: 50%; background: var(--green); box-shadow: 9px 9px 0 #d7e8ad; text-align: center; }
+.stamp-ring::before { content: ''; position: absolute; inset: 10px; border: 1px dashed #708741; border-radius: 50%; }
+.stamp-ring span { font: 500 11px/1.45 'DM Mono', monospace; letter-spacing: .14em; transform: rotate(-8deg); }
+.stamp-ring b { position: absolute; right: 23px; top: 29px; color: var(--orange); font-size: 30px; }
+.stamp-caption { position: absolute; right: -34px; bottom: 10px; font: 500 8px/1.6 'DM Mono', monospace; letter-spacing: .12em; transform: rotate(-8deg); }
+.board { padding: 34px 7.5% 25px; background: var(--card); border: 1px solid var(--line); border-top: 0; box-shadow: 0 13px 36px #413d2b0a; }
+.board-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 23px; }
+.board-heading .eyebrow { margin-bottom: 6px; }
+h2 { margin: 0; font-size: 27px; letter-spacing: -.04em; }
+.board-count { display: flex; align-items: baseline; gap: 7px; color: var(--muted); font-size: 11px; }
+.board-count strong { color: var(--ink); font: 500 19px 'DM Mono', monospace; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+thead { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+th { padding: 12px 8px; color: #7b8379; font: 500 9px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+td { padding: 15px 8px; border-bottom: 1px solid #ebe8dd; vertical-align: middle; font-size: 13px; }
+tbody tr:last-child td { border-bottom: 0; }
+.rank { width: 60px; font: 500 12px 'DM Mono', monospace; color: var(--muted); }
+.rank.top { color: var(--orange); font-size: 16px; }
+.person { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.avatar { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; background: #eaf0d8; color: var(--green-dark); font-size: 12px; font-weight: 800; }
+.badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.badge { padding: 4px 7px; border-radius: 999px; background: #f0eedf; color: #646c4f; font-size: 9px; white-space: nowrap; }
+.score { text-align: right; font: 500 13px 'DM Mono', monospace; }
+.score-head { text-align: right; }
+.empty { padding: 42px 8px; text-align: center; color: var(--muted); font-size: 12px; }
+.board-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 17px; margin-top: 5px; border-top: 1px solid var(--line); color: var(--muted); font: 10px 'DM Mono', monospace; }
+.pagination { display: flex; gap: 7px; }
+.pagination button { width: 32px; height: 30px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+.pagination button:disabled { opacity: .35; cursor: default; }
+.pagination button:not(:disabled):hover { background: var(--green); border-color: var(--green); }
+.footer { display: flex; justify-content: space-between; gap: 18px; color: #7d8476; padding: 23px 2px 36px; font-size: 10px; }
+.footer span:last-child { font: 10px 'DM Mono', monospace; letter-spacing: .1em; }
+.footer b { color: var(--orange); }
+@media (max-width: 650px) {
+  .shell { width: min(100% - 24px, 1040px); }
+  .masthead { height: 60px; }
+  .masthead-note { font-size: 10px; }
+  .intro { min-height: 330px; padding: 39px 5% 30px; align-items: flex-start; }
+  .hero-stamp { position: absolute; right: 13px; bottom: 15px; width: 115px; height: 115px; opacity: .82; }
+  .stamp-ring span { font-size: 7px; }
+  .stamp-ring b { right: 13px; top: 16px; font-size: 19px; }
+  .stamp-caption { display: none; }
+  .lede { max-width: 230px; line-height: 1.6; }
+  .disclosure { max-width: 250px; font-size: 10px; }
+  .board { padding: 27px 4% 20px; }
+  th { font-size: 8px; }
+  td { padding: 12px 5px; font-size: 11px; }
+  .rank { width: 43px; }
+  .person { gap: 6px; }
+  .avatar { width: 25px; height: 25px; }
+  .badge { padding: 4px 5px; font-size: 8px; }
+  .footer { font-size: 9px; }
+}
+
+@media (max-width: 520px) {
+  .hero-stamp { display: none; }
+  .disclosure { max-width: none; }
+}
+
+.ranking-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 20px; color: var(--muted); font-size: 12px; }
+.ranking-filter select { max-width: 100%; min-height: 38px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--card); font: inherit; }
+.person > span:last-child { min-width: 0; overflow-wrap: anywhere; }
